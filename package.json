@@ -1,0 +1,12 @@
+{
+  "name": "appSocketIO",
+  "version": "1.0.0",
+  "description": "socket io testing",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.16.3",
+    "http": "0.0.0",
+    "redis": "^2.8.0",
+    "socket.io": "^2.1.1"
+  }
+}
