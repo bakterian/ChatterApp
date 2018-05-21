@@ -1,0 +1,238 @@
+<html>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+<style>
+
+    ul
+    {
+        height:600px;
+        width:796px;
+        border:3px solid #ccc;
+        overflow:auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    input[type=text], select {
+        width: 82%;
+        padding: 14px 20px;
+        margin: 8px 4px 8px 8px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    input[type=submit] 
+    {
+        width: 16%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    input[type=submit]:hover 
+    {
+        background-color: #45a049;
+    }
+
+    #submitSection 
+    {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 8px;
+        height:60px;
+        border:3px solid #ccc;
+    }
+
+    body 
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 20px;
+        margin-top: 20px;
+        margin-left: 10px;
+        width: 1100px;
+    }
+
+    #nickName {
+        border-radius: 20px;
+        background-color: #45a049;
+        color: white;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        padding-left: 15px;
+        padding-right: 15px;
+        margin: 10px;
+        border: none;
+        width:auto;
+    }
+    #status{
+        margin-right: 10px;
+    }
+
+    #chatterSection
+    {
+        width: 35%;
+        margin-right: 10px;
+        border-radius: 5px;
+        border:3px solid #ccc;
+        list-style-type: none;
+        padding-left:0px;
+        padding-right: 0px;
+        background-color: #f2f2f2;
+    }
+    #chatterSection li
+    {
+        border: 3px solid #19acc1;
+        color: white;
+        background: #19acc1;
+        border-radius: 20px;
+        text-align: center;
+        margin:10px 20px;
+        padding: 2px;
+    }
+    .list-type1 
+    {
+        display: inline-flex;
+        width: 100%;
+    }
+
+    .list-type1 ul{
+    counter-reset: li;
+    list-style: circle;
+    width: 100%;
+    padding-left: 70px;
+    padding-right: 70px;
+    padding-bottom: 20px;
+    }
+
+    .list-type1 ul ul{
+    margin: 0 0 0 2em;
+    }
+
+    .list-type1 a{
+    position: relative;
+    display: block;
+    padding: .4em .4em .4em 2em;
+    *padding: .4em;
+    margin: .5em 0;
+    background: #f2f2f2;
+    color: #000;
+    text-decoration: none;
+    -moz-border-radius: .3em;
+    -webkit-border-radius: .3em;
+    border-radius: 10em;
+    transition: all .2s ease-in-out;
+    }
+
+    .list-type1 a:hover{
+    background: #d6d4d4;
+    text-decoration:none;
+    transform: scale(1.1);
+    }
+
+    .list-type1 a:before{
+    content: no-open-quote;
+    position: absolute;
+    left: -1.3em;
+    top: 50%;
+    margin-top: -1.3em;
+    background:#45a049;
+    height: 2em;
+    width: 2em;
+    line-height: 2em;
+    border: .3em solid #fff;
+    text-align: center;
+    font-weight: bold;
+    -moz-border-radius: 2em;
+    -webkit-border-radius: 2em;
+    border-radius: 2em;
+    color:#FFF;
+}
+</style>
+<script>
+    var socket = io.connect('http://localhost:8080');
+
+    $(document).ready(function()
+    {
+        $("form").submit(function(e)
+        {
+            var message = $("#msgInput").val();
+            $("#msgInput").val("");
+            socket.emit('messages',message);
+        });
+    });
+
+    var insertMsg = function(message)
+    {
+        var newMsg = document.createElement('li');
+        newMsg.innerHTML = "<a href=\"#\">" + message + "</a>";
+        
+        var msgBox = document.getElementsByTagName('ul')[1];
+        return msgBox.appendChild(newMsg);
+    }
+
+    var insertChatter = function(name)
+    {
+        var newMsg = document.createElement('li');
+        newMsg.innerHTML = name;
+        
+        var msgBox = document.getElementsByTagName('ul')[0];
+        return msgBox.appendChild(newMsg);
+    }
+
+    socket.on('connect',function(data)
+    {      
+        var nickName = prompt("What is your nickname?");
+        $("#status").html("<B>Connected to chattr</B>"); 
+        $("#nickName").html("<B>" + nickName + "</B>"); 
+        socket.emit('join', nickName);
+    })
+
+    socket.on('messages', function(data)
+    {
+        insertMsg(data);
+    });
+
+    socket.on('addChatter', function(name)
+    {
+        insertChatter(name);
+        //var newChatter = $('<li>'+name+'</li>').data('name', name);
+        // $('#chatterSection').append(newChatter);
+    });
+
+    socket.on('removeChatter', function(name)
+    {
+        removeChatter(name);
+    });
+
+
+</script>
+<body>
+    <div id="statusSection">
+        <l id="status">Not Connected to chattr</l>
+        <l id="nickName"></l>
+    </div>
+    <div class="list-type1">
+    <ul id="chatterSection">
+        <!-- <li>Dog</li>
+        <li>Spider</li> -->
+    </ul>
+    <ul>
+    </ul>
+    </div>
+    <div id="submitSection">
+        <iframe name="votar" style="display:none;"></iframe>
+        <form action="" id="msgEntryForm" method="post" target="votar">
+            <input type="text" name="Message" value="" id="msgInput">
+            <input type="submit" value="Submit">
+        </form> 
+    </div>
+</body>
+</html>
